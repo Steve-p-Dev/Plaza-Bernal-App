@@ -8,18 +8,48 @@ import { Minus, Plus, Send, Trash2, Gift, Calendar } from 'lucide-react';
 import { usePOSStore } from '@/hooks/usePOSStore';
 import { OrderItem } from '@/store/posStore';
 import { useToast } from '@/hooks/use-toast';
+import { usePedidos } from "@/hooks/usePedidos";
 
 export function OrderModule() {
   const store = usePOSStore();
   const { toast } = useToast();
+  const { pedidos, agregarPedido } = usePedidos();
   const [currentOrder, setCurrentOrder] = useState<OrderItem[]>([]);
   const [selectedTacos, setSelectedTacos] = useState<string[]>([]);
   const [selectedTable, setSelectedTable] = useState<number>(1);
   const [showTacoSelection, setShowTacoSelection] = useState(false);
   const [serviceType, setServiceType] = useState<'servirse' | 'llevar' | 'domicilio'>('servirse');
+  const [nuevoPedido, setNuevoPedido] = useState("");
   
   const products = store.getProducts();
   const dailyPromotion = store.getDailyPromotion();
+
+  const enviarPedido = async () => {
+    if (!nuevoPedido.trim()) return;
+    await agregarPedido(nuevoPedido);
+    setNuevoPedido("");
+  };
+  return (
+    <div>
+      <h2>Tomar Pedido</h2>
+      <input
+        type="text"
+        value={nuevoPedido}
+        onChange={(e) => setNuevoPedido(e.target.value)}
+        placeholder="Escribe el pedido"
+      />
+      <button onClick={enviarPedido}>Agregar</button>
+
+      <h3>Pedidos recientes</h3>
+      <ul>
+        {pedidos.map((p) => (
+          <li key={p.id}>{p.texto} - {p.estado}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
   
   const categories = [...new Set(products.map(p => p.category))];
   const tacoOptions = products.filter(p => p.category === 'Tacos');
