@@ -6,11 +6,33 @@ import { Badge } from '@/components/ui/badge';
 import { Clock, CheckCircle, AlertCircle } from 'lucide-react';
 import { usePOSStore } from '@/hooks/usePOSStore';
 import { useToast } from '@/hooks/use-toast';
+import { usePedidos } from "@/hooks/usePedidos";
 
 export function KitchenModule() {
   const store = usePOSStore();
   const { toast } = useToast();
   const orders = store.getOrders();
+
+  const { pedidos, actualizarEstado } = usePedidos();
+
+  const pedidosCocina = pedidos.filter(
+    (p) => p.estado === "pendiente" || p.estado === "en-cocina"
+  );
+
+  return (
+    <div>
+      <h2>Cocina</h2>
+      <ul>
+        {pedidosCocina.map((p) => (
+          <li key={p.id}>
+            {p.texto} - {p.estado}
+            <button onClick={() => actualizarEstado(p.id, "listo")}>Listo</button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
   const pendingOrders = orders.filter(order => order.status === 'pending');
   const preparingOrders = orders.filter(order => order.status === 'preparing');
