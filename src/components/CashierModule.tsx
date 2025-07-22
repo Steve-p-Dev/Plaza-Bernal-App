@@ -6,11 +6,30 @@ import { Badge } from '@/components/ui/badge';
 import { CreditCard, DollarSign, CheckCircle, Receipt } from 'lucide-react';
 import { usePOSStore } from '@/hooks/usePOSStore';
 import { useToast } from '@/hooks/use-toast';
+import { usePedidos } from "@/hooks/usePedidos";
 
 export function CashierModule() {
   const store = usePOSStore();
   const { toast } = useToast();
   const orders = store.getOrders();
+
+  const { pedidos, actualizarEstado } = usePedidos();
+
+  const pedidosListos = pedidos.filter((p) => p.estado === "listo");
+
+  return (
+    <div>
+      <h2>Caja</h2>
+      <ul>
+        {pedidosListos.map((p) => (
+          <li key={p.id}>
+            {p.texto} - {p.estado}
+            <button onClick={() => actualizarEstado(p.id, "entregado")}>Entregado</button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 
   const readyOrders = orders.filter(order => order.status === 'ready');
   const paidOrders = orders.filter(order => order.status === 'paid');
